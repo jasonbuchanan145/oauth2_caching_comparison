@@ -1,4 +1,4 @@
-package auth.config.cache;
+package edu.usd.jbuchanan.oauth.cache.comparison.auth.server.config.cache;
 
 import com.hazelcast.client.HazelcastClient;
 import com.hazelcast.client.config.ClientConfig;

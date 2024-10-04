@@ -1,4 +1,4 @@
-package auth;
+package edu.usd.jbuchanan.oauth.cache.comparison.auth.server;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

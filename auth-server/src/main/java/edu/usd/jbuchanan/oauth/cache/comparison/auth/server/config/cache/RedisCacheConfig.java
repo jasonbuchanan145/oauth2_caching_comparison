@@ -1,4 +1,4 @@
-package auth.config.cache;
+package edu.usd.jbuchanan.oauth.cache.comparison.auth.server.config.cache;
 
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;

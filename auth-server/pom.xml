@@ -66,6 +66,24 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>com.google.cloud.tools</groupId>
+				<artifactId>jib-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>push-image</id>
+						<phase>deploy</phase>
+						<goals>
+							<goal>build</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<to>
+						<image>jasonbuchanan145/oauth-cache-comparison-server:1.0</image>
+					</to>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
