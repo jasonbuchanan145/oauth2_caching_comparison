@@ -17,7 +17,7 @@ caches:
 oauth2Server:
   replicaCount: 1
   image:
-    repository: your-docker-registry/oauth2-server
+    repository: jasonbuchanan145/oauth-cache-comparison-server
     tag: "1.0"
     pullPolicy: IfNotPresent
   service:
@@ -35,7 +35,7 @@ oauth2Server:
 resourceServer:
   replicaCount: 2
   image:
-    repository: your-docker-registry/resource-server
+    repository: jasonbuchanan145/oauth-cache-comparison-resource
     tag: "1.0"
     pullPolicy: IfNotPresent
   service:
@@ -52,6 +52,6 @@ resourceServer:
 clientPod:
   enabled: true
   image:
-    repository: your-docker-registry/client-pod
+    repository: jasonbuchanan145/oauth-cache-comparison-client
     tag: "1.0"
     pullPolicy: IfNotPresent

@@ -44,6 +44,17 @@
 				<artifactId>spring-boot-starter-oauth2-resource-server</artifactId>
 				<version>3.3.4</version>
 			</dependency>
+			<dependency>
+				<groupId>com.googlecode.xmemcached</groupId>
+				<artifactId>xmemcached</artifactId>
+				<version>2.4.8</version>
+			</dependency>
+			<dependency>
+				<groupId>com.hazelcast</groupId>
+				<artifactId>hazelcast-spring</artifactId>
+				<version>5.5.0</version>
+			</dependency>
+
 
 			<dependency>
 				<groupId>org.springframework.boot</groupId>
@@ -82,5 +93,16 @@
 			</plugin>
 		</plugins>
 	</build>
+	<!-- Hazelcast is not responding to maven central, not sure what's going but these two additional repos should do the trick -->
+	<repositories>
+		<repository>
+			<id>hazelcast-repo</id>
+			<url>https://repository.hazelcast.com/release/</url>
+		</repository>
+		<repository>
+			<id>google-cloud-repo</id>
+			<url>https://maven-central.storage.googleapis.com/release/</url>
+		</repository>
+	</repositories>
 
 </project>
