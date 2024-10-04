@@ -1,0 +1,18 @@
+apiVersion: v2
+name: oauth-cache-comparison
+description: A Helm chart for deploying 3 different caches under test
+version: 0.1.0
+appVersion: "1.0"
+dependencies:
+  - name: redis
+    version: "17.7.3"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: caches.redis.enabled
+  - name: hazelcast
+    version: "4.0.6"
+    repository: "https://hazelcast-charts.s3.amazonaws.com/"
+    condition: caches.hazelcast.enabled
+  - name: memcached
+    version: "5.16.0"
+    repository: "https://charts.bitnami.com/bitnami"
+    condition: caches.memcached.enabled
