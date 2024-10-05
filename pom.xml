@@ -21,6 +21,8 @@
 	<description>oauth-cache-comparison</description>
 	<properties>
 		<java.version>21</java.version>
+		<docker-user>${docker.username}</docker-user>
+		<docker-password>${docker.password}</docker-password>
 	</properties>
 	<dependencyManagement>
 		<dependencies>
@@ -102,8 +104,75 @@
 			</plugin>
 		</plugins>
 	</build>
+	<!--configuration to read in docker files from a hidden file -->
+		<profiles>
+			<profile>
+				<id>docker-build</id>
+				<build>
+					<pluginManagement>
+						<plugins>
+							<plugin>
+								<groupId>org.apache.maven.plugins</groupId>
+								<artifactId>maven-resources-plugin</artifactId>
+								<version>3.2.0</version>
+								<executions>
+									<execution>
+										<id>load-docker-credentials</id>
+										<phase>initialize</phase>
+										<goals>
+											<goal>copy-resources</goal>
+										</goals>
+										<configuration>
+											<outputDirectory>${project.build.directory}</outputDirectory>
+											<resources>
+												<resource>
+													<directory>${basedir}</directory>
+													<includes>
+														<include>.credentials</include>
+													</includes>
+												</resource>
+											</resources>
+											<filters>
+												<filter>${project.build.directory}/.credentials</filter>
+											</filters>
+										</configuration>
+									</execution>
+								</executions>
+							</plugin>
+						</plugins>
+					</pluginManagement>
+					<plugins>
+						<plugin>
+							<groupId>org.codehaus.mojo</groupId>
+							<artifactId>properties-maven-plugin</artifactId>
+							<version>1.0.0</version>
+							<executions>
+								<execution>
+									<goals>
+										<goal>read-project-properties</goal>
+									</goals>
+									<configuration>
+										<files>
+											<file>${project.build.directory}/docker.credentials</file>
+										</files>
+									</configuration>
+								</execution>
+							</executions>
+						</plugin>
+					</plugins>
+				</build>
+			</profile>
+		</profiles>
 	<!-- Hazelcast is not responding to maven central, not sure what's going but these two additional repos should do the trick -->
 	<repositories>
+		<repository>
+			<snapshots>
+				<enabled>false</enabled>
+			</snapshots>
+			<id>central</id>
+			<name>Maven Repository Switchboard</name>
+			<url>https://repo1.maven.org/maven2</url>
+		</repository>
 		<repository>
 			<id>hazelcast-repo</id>
 			<url>https://repository.hazelcast.com/release/</url>
@@ -112,6 +181,7 @@
 			<id>google-cloud-repo</id>
 			<url>https://maven-central.storage.googleapis.com/release/</url>
 		</repository>
+
 	</repositories>
 
 </project>
