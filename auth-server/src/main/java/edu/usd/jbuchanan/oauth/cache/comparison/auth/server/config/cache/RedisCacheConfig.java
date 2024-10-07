@@ -1,5 +1,6 @@
 package edu.usd.jbuchanan.oauth.cache.comparison.auth.server.config.cache;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,9 +11,11 @@ import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactor
 @Configuration
 public class RedisCacheConfig {
 
+    @Value("${redis.host}")
+    private String redisHost;
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory("redis-master", 6379);
+        return new LettuceConnectionFactory(redisHost, 6379);
     }
 
     @Bean(name = "redisCacheManager")
