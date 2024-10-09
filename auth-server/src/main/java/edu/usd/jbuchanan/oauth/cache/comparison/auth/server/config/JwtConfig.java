@@ -12,7 +12,7 @@ public class JwtConfig {
     private JwtEncoder jwtEncoder;
 
     @Autowired
-    private CustomJwtCustomizer customJwtCustomizer;
+    private CustomTokenCustomizer customJwtCustomizer;
 
     @Bean
     public JwtGenerator jwtGenerator() {
