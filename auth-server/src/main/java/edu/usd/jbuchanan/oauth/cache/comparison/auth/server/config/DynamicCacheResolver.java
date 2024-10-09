@@ -34,15 +34,7 @@ public class DynamicCacheResolver implements CacheResolver {
         RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
 
         if (requestAttributes instanceof ServletRequestAttributes) {
-            HttpServletRequest request = ((ServletRequestAttributes) requestAttributes).getRequest();
-            String cacheType = (String) request.getAttribute("CACHE_TYPE");
-
-            CacheManager cacheManager = switch (cacheType) {
-                case "redis" -> redisCacheManager;
-                case "memcached" -> memcachedCacheManager;
-                case "hazelcast" -> hazelcastCacheManager;
-                default -> throw new IllegalArgumentException("Unknown cache type: " + cacheType);
-            };
+            CacheManager cacheManager = getCacheManager((ServletRequestAttributes) requestAttributes);
 
             String cacheName = "blacklistedTokens"; // Use your actual cache name
             Cache cache = cacheManager.getCache(cacheName);
@@ -51,5 +43,18 @@ public class DynamicCacheResolver implements CacheResolver {
         } else {
             throw new IllegalStateException("No request attributes found. Is this called outside of an HTTP request?");
         }
+    }
+
+    private CacheManager getCacheManager(ServletRequestAttributes requestAttributes) {
+        HttpServletRequest request = requestAttributes.getRequest();
+        String cacheType = (String) request.getAttribute("CACHE_TYPE");
+
+        CacheManager cacheManager = switch (cacheType) {
+            case "redis" -> redisCacheManager;
+            case "memcached" -> memcachedCacheManager;
+            case "hazelcast" -> hazelcastCacheManager;
+            default -> throw new IllegalArgumentException("Unknown cache type: " + cacheType);
+        };
+        return cacheManager;
     }
 }
