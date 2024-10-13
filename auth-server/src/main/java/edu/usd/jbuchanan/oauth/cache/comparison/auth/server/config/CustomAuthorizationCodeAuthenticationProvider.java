@@ -8,9 +8,7 @@ import org.springframework.security.oauth2.server.authorization.authentication.O
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
-import org.springframework.stereotype.Component;
 
-@Component
 public class CustomAuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
 
     private final OAuth2AuthorizationCodeAuthenticationProvider delegate;
