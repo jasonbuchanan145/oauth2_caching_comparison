@@ -1,4 +1,4 @@
-package auth.config.cache;
+package edu.usd.jbuchanan.oauth.cache.comparison.auth.server.config.cache;
 
 import lombok.extern.slf4j.Slf4j;
 import net.rubyeye.xmemcached.MemcachedClient;
@@ -39,7 +39,6 @@ public class MemcachedConfig {
     @Bean
     public MemcachedClient memcachedClient() throws IOException {
         XMemcachedClientBuilder builder = new XMemcachedClientBuilder(AddrUtil.getAddresses(memcachedServers));
-        // Additional configurations can be set here if needed
         return builder.build();
     }
     //what a mess, for my usecase I don't want it to take over as the default cache so I can't use most of the clients

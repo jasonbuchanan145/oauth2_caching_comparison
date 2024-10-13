@@ -1,10 +1,17 @@
 server:
-  port: 9000
+  port: 8080
 
 logging:
   level:
-    org.springframework.security: trace
-
+    org.springframework.security: info
+memcached:
+  servers: oauth-cache-comparison-memcached.default.svc.cluster.local:11211
+hazelcast:
+  servers: oauth-cache-comparison-hazelcast:5701
+management:
+  endpoint:
+    health:
+      show-details: always
 spring:
   security:
     user:
@@ -30,3 +37,8 @@ spring:
                 - "openid"
                 - "profile"
             require-authorization-consent: true
+  data:
+    redis:
+      host: oauth-cache-comparison-redis-master.default.svc.cluster.local
+      password: testy
+      username: jason_test

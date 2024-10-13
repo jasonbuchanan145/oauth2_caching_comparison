@@ -3,7 +3,16 @@ caches:
     enabled: true
     architecture: standalone
     auth:
-      enabled: false
+      enabled: true
+      password: foobar
+      existingSecret: ""
+      users:
+        jason_test:
+          password: testy
+          commands:
+            - allkeys
+            - on
+            - +@all
     master:
       persistence:
         enabled: false
@@ -19,10 +28,15 @@ oauth2Server:
   image:
     repository: jasonbuchanan145/oauth-cache-comparison-server
     tag: "1.0"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
+  app:
+    name: oauth2-server
+  ingress:
+    host: oauth2-server.local
   service:
     type: ClusterIP
     port: 8080
+    hostPort: 9999
   env:
     REDIS_HOST: redis-master
     REDIS_PORT: "6379"

@@ -6,9 +6,10 @@
         <groupId>edu.usd.jbuchanan.oauth.cache.comparison</groupId>
         <artifactId>parent</artifactId>
         <version>1.0.0</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath>../pom.xml</relativePath>
     </parent>
     <artifactId>client</artifactId>
+    <packaging>jar</packaging>
     <version>0.0.1-SNAPSHOT</version>
     <name>client</name>
     <description>client</description>
@@ -31,6 +32,10 @@
             <artifactId>reactor-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.google.cloud.tools</groupId>
+            <artifactId>jib-maven-plugin</artifactId>
+        </dependency>
     </dependencies>
 
     <build>
@@ -42,10 +47,9 @@
             <plugin>
                 <groupId>com.google.cloud.tools</groupId>
                 <artifactId>jib-maven-plugin</artifactId>
-                <version>3.3.1</version>
                 <configuration>
                     <to>
-                        <image>jasonbuchanan145/oauth-cache-comparison-server:1.0</image>
+                        <image>jasonbuchanan145/oauth-cache-comparison-client:1.0</image>
                     </to>
                 </configuration>
             </plugin>
