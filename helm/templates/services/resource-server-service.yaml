@@ -10,9 +10,9 @@ metadata:
 spec:
   type: ClusterIP
   ports:
-    - name: http
-      port: {{ .Values.resourceServer.service.port }}
-      targetPort: {{ .Values.resourceServer.service.port }}
+    - name: resource-server-service
+      port: {{ .Values.resourceServer.service.hostPort }}
+      targetPort: {{ .Values.resourceServer.service.containerPort }}
       protocol: TCP
   selector:
     app: resource-server

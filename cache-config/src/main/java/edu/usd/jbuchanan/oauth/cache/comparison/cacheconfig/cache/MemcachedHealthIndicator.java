@@ -1,9 +1,9 @@
-package edu.usd.jbuchanan.oauth.cache.comparison.auth.server.config.cache;
+package edu.usd.jbuchanan.oauth.cache.comparison.cacheconfig.cache;
 
+import net.rubyeye.xmemcached.MemcachedClient;
 import org.springframework.boot.actuate.health.Health;
 import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.stereotype.Component;
-import net.rubyeye.xmemcached.MemcachedClient;
 
 @Component
 public class MemcachedHealthIndicator implements HealthIndicator {

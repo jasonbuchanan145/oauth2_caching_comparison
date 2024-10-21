@@ -1,4 +1,4 @@
-package edu.usd.jbuchanan.oauth.cache.comparison.auth.server.config.cache;
+package edu.usd.jbuchanan.oauth.cache.comparison.cacheconfig.cache;
 
 import lombok.extern.slf4j.Slf4j;
 import net.rubyeye.xmemcached.MemcachedClient;
@@ -15,8 +15,8 @@ import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
 import java.util.Arrays;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.Callable;
+import java.util.concurrent.TimeoutException;
 
 @Configuration
 public class MemcachedConfig {

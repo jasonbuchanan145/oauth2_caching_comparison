@@ -19,8 +19,7 @@ spec:
           image: "{{ .Values.oauth2Server.image.repository }}:{{ .Values.oauth2Server.image.tag }}"
           imagePullPolicy: {{ .Values.oauth2Server.image.pullPolicy }}
           ports:
-            - containerPort: {{ .Values.oauth2Server.service.port }}
-              hostPort:  {{ .Values.oauth2Server.service.hostPort }}
+            - containerPort: {{ .Values.oauth2Server.service.containerPort }}
           env:
             {{- range $key, $value := .Values.oauth2Server.env }}
             - name: "{{ $key }}"
