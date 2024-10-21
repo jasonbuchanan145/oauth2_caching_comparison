@@ -39,7 +39,7 @@ hazelcast:
 memcached:
   enabled: true
 
-oauth2Server:
+oauthServer:
   replicaCount: 1
   image:
     repository: jasonbuchanan145/oauth-cache-comparison-server
