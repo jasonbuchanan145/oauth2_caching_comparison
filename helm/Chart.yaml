@@ -7,12 +7,12 @@ dependencies:
   - name: redis
     version: "20.2.0"
     repository: "https://charts.bitnami.com/bitnami"
-    condition: caches.redis.enabled
+    condition: redis.enabled
   - name: hazelcast
     version: "5.10.1"
     repository: "https://hazelcast-charts.s3.amazonaws.com/"
-    condition: caches.hazelcast.enabled
+    condition: hazelcast.enabled
   - name: memcached
     version: "7.0.0"
     repository: "https://charts.bitnami.com/bitnami"
-    condition: caches.memcached.enabled
+    condition: memcached.enabled

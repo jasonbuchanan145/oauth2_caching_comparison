@@ -50,10 +50,8 @@ public class SecurityConfiguration {
         return new InMemoryOAuth2AuthorizationService();
     }
 
-    // Define the RegisteredClientRepository bean
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
-        // Define your registered clients here
         RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
                 .clientId("client-id")
                 .clientSecret("{noop}client-secret")

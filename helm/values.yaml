@@ -1,29 +1,45 @@
-caches:
-  redis:
-    enabled: true
-    architecture: standalone
-    auth:
-      enabled: true
-      password: foobar
-      existingSecret: ""
-      users:
-        jason_test:
-          password: testy
-          commands:
-            - allkeys
-            - on
-            - +@all
-    master:
-      persistence:
-        enabled: false
-  hazelcast:
-    enabled: true
-    cluster:
-      memberCount: 2
-  memcached:
-    enabled: true
 
-oauth2Server:
+redis:
+  enabled: true
+  architecture: standalone
+  auth:
+    enabled: true
+    password: default_password
+  master:
+    configuration: |
+      aclfile /opt/bitnami/redis/conf/acl.conf
+    persistence:
+      enabled: false
+    extraVolumes:
+      - name: redis-acl
+        secret:
+          secretName: redis-acl
+    extraVolumeMounts:
+        - name: redis-acl
+          mountPath: /opt/bitnami/redis/conf/acl.conf
+          subPath: acl.conf
+          readOnly: true
+aclConfig: |
+  user default on >default_password ~* &* +@all
+  user jason_test on >testy ~* &* +@all
+
+hazelcast:
+  enabled: true
+  mancenter:
+    enabled: false
+    initContainers:
+      - name: clear-mc-lock
+        image: busybox
+        command: [ "sh", "-c", "rm -f /data/mc.lock || true" ]
+        volumeMounts:
+          - name: mancenter-data
+            mountPath: /data
+  cluster:
+    memberCount: 2
+memcached:
+  enabled: true
+
+oauthServer:
   replicaCount: 1
   image:
     repository: jasonbuchanan145/oauth-cache-comparison-server
@@ -35,7 +51,7 @@ oauth2Server:
     host: oauth2-server.local
   service:
     type: ClusterIP
-    port: 8080
+    containerPort: 8080
     hostPort: 9999
   env:
     REDIS_HOST: redis-master
@@ -54,7 +70,8 @@ resourceServer:
     pullPolicy: IfNotPresent
   service:
     type: ClusterIP
-    port: 8081
+    hostPort: 8081
+    containerPort: 8080
   env:
     REDIS_HOST: redis-master
     REDIS_PORT: "6379"

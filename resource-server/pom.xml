@@ -39,12 +39,20 @@
 		<dependency>
 			<groupId>org.springframework.security</groupId>
 			<artifactId>spring-security-test</artifactId>
-			<version>6.3.3</version>
 			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.nimbusds</groupId>
+			<artifactId>nimbus-jose-jwt</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.google.cloud.tools</groupId>
 			<artifactId>jib-maven-plugin</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>edu.usd.jbuchanan.oauth.cache.comparison</groupId>
+			<artifactId>cache-config</artifactId>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 

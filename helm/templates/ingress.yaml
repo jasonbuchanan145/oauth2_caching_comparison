@@ -6,13 +6,13 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: {{ .Values.oauth2Server.ingress.host }}
+    - host: {{ .Values.oauthServer.ingress.host }}
       http:
         paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: oauth2-server-service
+                name: oauth-server-service
                 port:
                   number: 9999

@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: resource-server
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://oauth2-server/.well-known/jwks.json
+
