@@ -2,6 +2,7 @@ package edu.usd.jbuchanan.oauth.cache.comparison.auth.server.config;
 
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 

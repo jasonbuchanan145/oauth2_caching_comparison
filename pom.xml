@@ -147,7 +147,6 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
-
 		</plugins>
 	</build>
 	<!--configuration to read in docker files from a hidden file -->
@@ -227,7 +226,6 @@
 			<id>google-cloud-repo</id>
 			<url>https://maven-central.storage.googleapis.com/release/</url>
 		</repository>
-
 	</repositories>
 
 </project>
