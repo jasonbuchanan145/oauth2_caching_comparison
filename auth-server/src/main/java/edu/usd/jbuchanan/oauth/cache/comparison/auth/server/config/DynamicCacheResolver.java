@@ -1,6 +1,7 @@
 package edu.usd.jbuchanan.oauth.cache.comparison.auth.server.config;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cache.Cache;
@@ -14,6 +15,8 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+@Slf4j
 @Component
 public class DynamicCacheResolver implements CacheResolver {
 
@@ -31,30 +34,36 @@ public class DynamicCacheResolver implements CacheResolver {
 
     @Override
     public Collection<? extends Cache> resolveCaches(CacheOperationInvocationContext<?> context) {
-        RequestAttributes requestAttributes = RequestContextHolder.getRequestAttributes();
 
-        if (requestAttributes instanceof ServletRequestAttributes) {
-            CacheManager cacheManager = getCacheManager((ServletRequestAttributes) requestAttributes);
+        CacheManager cacheManager = getCacheManager();
 
-            String cacheName = "blacklistedTokens"; // Use your actual cache name
-            Cache cache = cacheManager.getCache(cacheName);
+        String cacheName = "blacklistedTokens"; // Use your actual cache name
+        Cache cache = cacheManager.getCache(cacheName);
 
-            return Collections.singletonList(cache);
-        } else {
-            throw new IllegalStateException("No request attributes found. Is this called outside of an HTTP request?");
-        }
+        return Collections.singletonList(cache);
     }
-
-    private CacheManager getCacheManager(ServletRequestAttributes requestAttributes) {
-        HttpServletRequest request = requestAttributes.getRequest();
-        String cacheType = (String) request.getAttribute("CACHE_TYPE");
-
-        CacheManager cacheManager = switch (cacheType) {
+    List<CacheManager> getAll(){
+        return List.of(redisCacheManager,memcachedCacheManager,hazelcastCacheManager);
+    }
+    public CacheManager getCacheManager() {
+        String cacheType = CacheTypeContext.getCacheType();
+        if(cacheType==null){
+            log.warn("cache type is null");
+            ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.currentRequestAttributes();
+            HttpServletRequest request = attributes.getRequest();
+            String type = request.getHeader("cache-type");
+            if(type==null){
+                throw new NullPointerException("cache type is null again - big sad");
+            }
+            else{
+                cacheType = type;
+            }
+        }
+        return switch (cacheType) {
             case "redis" -> redisCacheManager;
             case "memcached" -> memcachedCacheManager;
             case "hazelcast" -> hazelcastCacheManager;
             default -> throw new IllegalArgumentException("Unknown cache type: " + cacheType);
         };
-        return cacheManager;
     }
 }

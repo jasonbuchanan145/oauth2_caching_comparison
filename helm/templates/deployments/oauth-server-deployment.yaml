@@ -18,8 +18,14 @@ spec:
         - name: oauth2-server
           image: "{{ .Values.oauthServer.image.repository }}:{{ .Values.oauthServer.image.tag }}"
           imagePullPolicy: {{ .Values.oauthServer.image.pullPolicy }}
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: /actuator/health
           ports:
             - containerPort: {{ .Values.oauthServer.service.containerPort }}
+            - containerPort: 5000
+              name: debug
           env:
             {{- range $key, $value := .Values.oauthServer.env }}
             - name: "{{ $key }}"

@@ -1,58 +1,143 @@
 package edu.usd.jbuchanan.oauth.cache.comparison.auth.server.config;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.oauth2.core.AuthorizationGrantType;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
+import org.springframework.security.oauth2.core.OAuth2RefreshToken;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
+import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
-import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeAuthenticationProvider;
-import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AccessTokenAuthenticationToken;
-import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeAuthenticationToken;
+import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken;
+import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
+import org.springframework.security.oauth2.server.authorization.context.AuthorizationServerContextHolder;
+import org.springframework.security.oauth2.server.authorization.token.DefaultOAuth2TokenContext;
+import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenGenerator;
+import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+
+@Component
+@Slf4j
 public class CustomAuthorizationCodeAuthenticationProvider implements AuthenticationProvider {
-
-    private final OAuth2AuthorizationCodeAuthenticationProvider delegate;
+    private final OAuth2TokenGenerator<?> tokenGenerator;
     private final OAuth2AuthorizationService authorizationService;
+    private final DynamicCacheResolver cacheManager;
+    private final CachedClientRepository clientRepository;  // Add this
 
     public CustomAuthorizationCodeAuthenticationProvider(
             OAuth2AuthorizationService authorizationService,
-            OAuth2TokenGenerator<?> tokenGenerator) {
+            OAuth2TokenGenerator<?> tokenGenerator,
+            DynamicCacheResolver cacheManager,
+            CachedClientRepository registeredClientRepository) {  // Add this parameter
         this.authorizationService = authorizationService;
-        this.delegate = new OAuth2AuthorizationCodeAuthenticationProvider(authorizationService,tokenGenerator);
+        this.tokenGenerator = tokenGenerator;
+        this.cacheManager = cacheManager;
+        this.clientRepository = registeredClientRepository;
     }
-
     @Override
-    public Authentication authenticate(Authentication authentication) {
-        OAuth2AuthorizationCodeAuthenticationToken authToken =
+    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        OAuth2AuthorizationCodeAuthenticationToken authorizationCodeAuthentication =
                 (OAuth2AuthorizationCodeAuthenticationToken) authentication;
 
-        // Perform the standard authentication
-        OAuth2AccessTokenAuthenticationToken accessTokenAuthentication =
-                (OAuth2AccessTokenAuthenticationToken) delegate.authenticate(authentication);
+        Map<String, Object> parameters = authorizationCodeAuthentication.getAdditionalParameters();
+        String clientId = ((OAuth2AuthorizationCodeAuthenticationToken) authentication).getCode();
+        Set<String> scopes;
+        if(authentication.getPrincipal() instanceof OAuth2ClientAuthenticationToken){
+            OAuth2ClientAuthenticationToken clientAuthentication = (OAuth2ClientAuthenticationToken) authentication.getPrincipal();
+            scopes= Optional.ofNullable(clientAuthentication.getRegisteredClient()).map(RegisteredClient::getScopes).orElse(new HashSet<>());
+        }else {
+            String scopeParameter = (String) parameters.get(OAuth2ParameterNames.SCOPE);
+            if (StringUtils.hasText(scopeParameter)) {
+                scopes = new HashSet<>(Arrays.asList(scopeParameter.split(" ")));
+            } else {
+                scopes = new HashSet<>();  // or default scopes if you have any
+            }
+        }
+        // Find the registered client using the client ID
+        RegisteredClient registeredClient = clientRepository.findByClientId(clientId);
 
-        // Retrieve the authorization
-        OAuth2Authorization authorization = authorizationService.findByToken(
-                authToken.getCode(), OAuth2TokenType.ACCESS_TOKEN);
+        // Build access token context
+        DefaultOAuth2TokenContext.Builder tokenContextBuilder = DefaultOAuth2TokenContext.builder()
+                .registeredClient(registeredClient)
+                .principal((Authentication) authorizationCodeAuthentication.getPrincipal())
+                .authorizationServerContext(AuthorizationServerContextHolder.getContext())
+                .authorizedScopes(scopes)
+                .tokenType(OAuth2TokenType.ACCESS_TOKEN)
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE);
 
-        if (authorization != null) {
-            // Retrieve device_id from additional parameters
-            String deviceId = (String) authToken.getAdditionalParameters().get("device_id");
+        OAuth2TokenContext tokenContext = tokenContextBuilder.build();
+        Jwt jwt = (Jwt) tokenGenerator.generate(tokenContext);
+        OAuth2AccessToken accessToken = new OAuth2AccessToken(
+                OAuth2AccessToken.TokenType.BEARER,
+                jwt.getTokenValue(),
+                jwt.getIssuedAt(),
+                jwt.getExpiresAt(),
+                new HashSet<>(jwt.getClaim("scope"))
+        );
 
-            // Store device_id in authorization attributes
-            OAuth2Authorization updatedAuthorization = OAuth2Authorization.from(authorization)
-                    .attribute("device_id", deviceId)
-                    .build();
+        OAuth2RefreshToken refreshToken = null;
+       // if (registeredClient.getAuthorizationGrantTypes().contains(AuthorizationGrantType.REFRESH_TOKEN)) {
+        OAuth2TokenContext refreshTokenContext = DefaultOAuth2TokenContext.builder()
+                .registeredClient(registeredClient)
+                .principal(authentication)  // Keep the original authentication
+                .authorizationServerContext(AuthorizationServerContextHolder.getContext())
+                .authorizedScopes(tokenContext.getAuthorizedScopes())
+                .tokenType(OAuth2TokenType.REFRESH_TOKEN)
+                .authorizationGrantType(AuthorizationGrantType.CLIENT_CREDENTIALS)
+                .authorizationGrant(authentication)  // Set the authorization grant
+                .build();
 
-            // Update the authorization
-            authorizationService.save(updatedAuthorization);
+        OAuth2RefreshToken refresh = (OAuth2RefreshToken) tokenGenerator.generate(refreshTokenContext);
+        refreshToken = new OAuth2RefreshToken(
+                refresh.getTokenValue(),
+                refresh.getIssuedAt(),
+                refresh.getExpiresAt()
+        );
+       // }
+
+        // Build the authorization
+        OAuth2Authorization.Builder authorizationBuilder = OAuth2Authorization.withRegisteredClient(registeredClient)
+                .principalName(authorizationCodeAuthentication.getPrincipal().toString())
+                .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .authorizedScopes(scopes);
+
+        if (accessToken != null) {
+            authorizationBuilder.accessToken(accessToken);
         }
 
-        return accessTokenAuthentication;
+        if (refreshToken != null) {
+            authorizationBuilder.refreshToken(refreshToken);
+        }
+
+        OAuth2Authorization authorization = authorizationBuilder.build();
+        authorizationService.save(authorization);
+
+        return new OAuth2AccessTokenAuthenticationToken(
+                registeredClient,
+                (Authentication) authorizationCodeAuthentication.getPrincipal(),
+                accessToken,
+                refreshToken);
     }
+
+
 
     @Override
     public boolean supports(Class<?> authentication) {
-        return delegate.supports(authentication);
+        return OAuth2AuthorizationCodeAuthenticationToken.class.isAssignableFrom(authentication);
     }
 }
+
 

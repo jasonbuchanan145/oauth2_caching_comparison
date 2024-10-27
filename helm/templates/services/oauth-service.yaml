@@ -5,11 +5,16 @@ metadata:
   labels:
     app: oauth-server
 spec:
-  type: ClusterIP
+  type: NodePort
   ports:
     - port: 9999
       targetPort: 8080
       protocol: TCP
       name: oauth-server-service
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+      name: debug
+      nodePort: 30500
   selector:
     app: oauth-server

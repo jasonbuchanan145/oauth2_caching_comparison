@@ -1,17 +1,18 @@
 package edu.usd.jbuchanan.oauth.cache.comparison.auth.server.config;
 
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
+import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationConverter;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-import jakarta.servlet.http.HttpServletRequest;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 public class CustomAuthorizationCodeAuthenticationConverter implements AuthenticationConverter {
 
@@ -20,13 +21,14 @@ public class CustomAuthorizationCodeAuthenticationConverter implements Authentic
         MultiValueMap<String, String> parameters = getParameters(request);
 
         // Extract the authorization code
-        String code = parameters.getFirst(OAuth2ParameterNames.CODE);
-        if (!StringUtils.hasText(code)) {
+        String code = Optional.ofNullable(parameters.getFirst(OAuth2ParameterNames.CODE)).orElse(parameters.getFirst(OAuth2ParameterNames.CLIENT_ID));
+     /*   if (!StringUtils.hasText(code)) {
             throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CODE);
         }
-
+*/
         // Extract the redirect_uri (optional)
-        String redirectUri = parameters.getFirst(OAuth2ParameterNames.REDIRECT_URI);
+        String redirectUri = Optional.ofNullable(
+                parameters.getFirst(OAuth2ParameterNames.REDIRECT_URI)).orElse("http://127.0.0.1:8080/login/oauth2/code/client");
 
         // Extract additional parameters
         Map<String, Object> additionalParameters = new HashMap<>();
@@ -39,16 +41,16 @@ public class CustomAuthorizationCodeAuthenticationConverter implements Authentic
         });
 
         // Extract device_id
-        String deviceId = parameters.getFirst("device_id");
+        String deviceId = parameters.getFirst("version");
         if (StringUtils.hasText(deviceId)) {
-            additionalParameters.put("device_id", deviceId);
+            additionalParameters.put("version", deviceId);
         }
 
         // Get client authentication
         Authentication clientPrincipal = (Authentication) request.getUserPrincipal();
 
         if (!(clientPrincipal instanceof OAuth2ClientAuthenticationToken)) {
-            throwError(OAuth2ErrorCodes.INVALID_CLIENT, "client authentication");
+            throwError(OAuth2ErrorCodes.INVALID_CLIENT, "No OAuth2ClientAuthenticationToken");
         }
 
         // Create an OAuth2AuthorizationCodeAuthenticationToken with additional parameters
