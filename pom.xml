@@ -24,6 +24,7 @@
         <java.version>21</java.version>
         <docker-user>${docker.username}</docker-user>
         <docker-password>${docker.password}</docker-password>
+        <docker-path>jasonbuchanan145</docker-path>
     </properties>
     <dependencyManagement>
         <dependencies>

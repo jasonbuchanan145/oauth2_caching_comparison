@@ -39,7 +39,7 @@ memcached:
   enabled: true
 
 oauthServer:
-  replicaCount: 1
+  replicaCount: 2
   image:
     repository: jasonbuchanan145/oauth-cache-comparison-server
     tag: "1.0"

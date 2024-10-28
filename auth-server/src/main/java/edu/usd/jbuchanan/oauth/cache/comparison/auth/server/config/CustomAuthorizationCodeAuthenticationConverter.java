@@ -26,7 +26,6 @@ public class CustomAuthorizationCodeAuthenticationConverter implements Authentic
             throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CODE);
         }
 */
-        // Extract the redirect_uri (optional)
         String redirectUri = Optional.ofNullable(
                 parameters.getFirst(OAuth2ParameterNames.REDIRECT_URI)).orElse("http://127.0.0.1:8080/login/oauth2/code/client");
 
@@ -40,7 +39,7 @@ public class CustomAuthorizationCodeAuthenticationConverter implements Authentic
             }
         });
 
-        // Extract device_id
+        // Extract version
         String deviceId = parameters.getFirst("version");
         if (StringUtils.hasText(deviceId)) {
             additionalParameters.put("version", deviceId);
@@ -53,7 +52,6 @@ public class CustomAuthorizationCodeAuthenticationConverter implements Authentic
             throwError(OAuth2ErrorCodes.INVALID_CLIENT, "No OAuth2ClientAuthenticationToken");
         }
 
-        // Create an OAuth2AuthorizationCodeAuthenticationToken with additional parameters
         return new OAuth2AuthorizationCodeAuthenticationToken(
                 code, clientPrincipal, redirectUri, additionalParameters);
     }

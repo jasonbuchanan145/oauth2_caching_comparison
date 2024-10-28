@@ -57,7 +57,7 @@
                 <artifactId>jib-maven-plugin</artifactId>
                 <configuration>
                     <to>
-                        <image>jasonbuchanan145/oauth-cache-comparison-client:1.0</image>
+                        <image>${docker-path}/oauth-cache-comparison-client:1.0</image>
                     </to>
                 </configuration>
             </plugin>

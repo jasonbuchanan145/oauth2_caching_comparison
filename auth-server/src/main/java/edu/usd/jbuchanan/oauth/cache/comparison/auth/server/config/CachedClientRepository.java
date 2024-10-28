@@ -16,25 +16,23 @@ public class CachedClientRepository implements RegisteredClientRepository {
             this.cacheManager = cacheManager;
         }
 
+        public void saveInAllCaches(RegisteredClient registeredClient){
+            cacheManager.getAll()
+                    .forEach(manager ->{
+                        log.info(manager.getClass().getName());
+                        Cache clientCache =  manager.getCache(CLIENT_CACHE_NAME);
+                        clientCache.put(registeredClient.getId(), registeredClient);
+                        clientCache.put(registeredClient.getClientId(), registeredClient.getId());
+                    });
+        }
+
         @Override
         public void save(RegisteredClient registeredClient) {
-            if(CacheTypeContext.getCacheType()==null){
-                log.info("Cannot resolve type, save it in all of them");
-                cacheManager.getAll()
-                        .forEach(manager ->{
-                            log.info(manager.getClass().getName());
-                            Cache clientCache =  manager.getCache(CLIENT_CACHE_NAME);
-                    clientCache.put(registeredClient.getId(), registeredClient);
-                    clientCache.put(registeredClient.getClientId(), registeredClient.getId());
-                });
-            }
-            else {
                 Cache clientCache = cacheManager.getCacheManager().getCache(CLIENT_CACHE_NAME);
                 if (clientCache != null) {
                     clientCache.put(registeredClient.getId(), registeredClient);
                     clientCache.put(registeredClient.getClientId(), registeredClient.getId());
                 }
-            }
         }
 
         @Override

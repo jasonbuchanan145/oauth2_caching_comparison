@@ -57,7 +57,7 @@ public class FilterChainConfiguration {
                                 .accessTokenRequestConverter(
                                         new CustomAuthorizationCodeAuthenticationConverter())
                                 .authenticationProvider(authProvider)))
-                .addFilterBefore(cacheTypeFilter, UsernamePasswordAuthenticationFilter.class);  // Add your filter here
+                .addFilterBefore(cacheTypeFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

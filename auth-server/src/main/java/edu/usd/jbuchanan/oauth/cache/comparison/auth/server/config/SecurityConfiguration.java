@@ -55,13 +55,11 @@ public class SecurityConfiguration {
         return new CacheTypeFilter();
     }
 
-
-
     @PostConstruct
     public void initializeClients() {
         RegisteredClient registeredClient = RegisteredClient.withId(UUID.randomUUID().toString())
-                .clientId("your-client-id")
-                .clientSecret("{noop}your-client-secret")
+                .clientId("ThisIsMyClientId")
+                .clientSecret("{noop}myClientSecret")
                 .clientAuthenticationMethod(ClientAuthenticationMethod.CLIENT_SECRET_BASIC)
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizationGrantType(AuthorizationGrantType.REFRESH_TOKEN)
@@ -72,7 +70,7 @@ public class SecurityConfiguration {
                 .clientSettings(ClientSettings.builder().requireAuthorizationConsent(true).build())
                 .build();
 
-        cachedClientRepository.save(registeredClient);
+        cachedClientRepository.saveInAllCaches(registeredClient);
     }
     @Bean
     public JWKSource<SecurityContext> jwkSource() {

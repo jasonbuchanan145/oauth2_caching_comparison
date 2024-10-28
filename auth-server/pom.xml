@@ -119,7 +119,7 @@
                 </executions>
                 <configuration>
                     <to>
-                        <image>jasonbuchanan145/oauth-cache-comparison-server:1.0</image>
+                        <image>${docker-path}/oauth-cache-comparison-server:1.0</image>
                     </to>
                 </configuration>
             </plugin>
