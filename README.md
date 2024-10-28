@@ -23,7 +23,8 @@ Compares caching mechanisms using Redis, Hazelcast, and Memcached in the OAuth2 
 - JWT tokens: Secure structure for sessions
 - Helm: Manages templating, turn key charts such as the caching, services, and revisioning the kubernetes cluster.
 - Containerization: Client, Auth Server, and Resource server are containerized using jib and docker
-
+- Actuator: Spring Boot Actuator is used to verify network connections on dependant services and provide a health check of the service 
+  
 ## Directory Structure
 This project is a multimodule project with the following structure 
 - Parent (the root pom and structure that defines the dependencies)
