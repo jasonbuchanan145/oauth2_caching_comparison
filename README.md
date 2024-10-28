@@ -3,6 +3,7 @@
 ## Table of Contents
 - Overview
 - Features
+- Directory Structure
 - Get Started
   - Prerequisites 
     - Quickstart using precompiled containers and helm structure
@@ -22,6 +23,16 @@ Compares caching mechanisms using Redis, Hazelcast, and Memcached in the OAuth2 
 - JWT tokens: Secure structure for sessions
 - Helm: Manages templating, turn key charts such as the caching, services, and revisioning the kubernetes cluster.
 - Containerization: Client, Auth Server, and Resource server are containerized using jib and docker
+
+## Directory Structure
+This project is a multimodule project with the following structure 
+- Parent (the root pom and structure that defines the dependencies)
+  - auth-server: The authorization server module
+  - cache-config: A configuration module that is shared between auth-server and resource-server to access caches
+  - client: The client that calls auth-server and then resource-server (not yet implemented)
+  - helm: Contains all kubernetes resources including helm charts, configurations, etc. 
+  - resource-server: the resource server that just returns the name of the cache that it used to validate the session (not yet implemented
+
 
 ## Getting Started
 ### Prerequisites
