@@ -1,8 +1,11 @@
 package edu.usd.jbuchanan.oauth.cache.comparison.auth.server.config;
 
-import jakarta.servlet.*;
+import jakarta.servlet.Filter;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.ServletRequest;
+import jakarta.servlet.ServletResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
@@ -11,18 +14,12 @@ public class CacheTypeFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-
-        String requestURI = ((HttpServletRequest)request).getRequestURI();
-
-        if (requestURI.startsWith("/oauth/redis/")) {
-            request.setAttribute("CACHE_TYPE", "redis");
-        } else if (requestURI.startsWith("/oauth/memcached/")) {
-            request.setAttribute("CACHE_TYPE", "memcached");
-        } else if (requestURI.startsWith("/oauth/hazelcast/")) {
-            request.setAttribute("CACHE_TYPE", "hazelcast");
+        try {
+            CacheTypeContext.setCacheType(((HttpServletRequest) request).getHeader("cache-type"));
+            filterChain.doFilter(request, response);
+        } finally {
+            CacheTypeContext.clear();
         }
-
-        filterChain.doFilter(request, response);
     }
 
 }

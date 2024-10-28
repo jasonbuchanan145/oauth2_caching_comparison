@@ -8,8 +8,8 @@ import org.springframework.boot.autoconfigure.data.redis.RedisRepositoriesAutoCo
 @SpringBootApplication(exclude = {RedisAutoConfiguration.class, RedisRepositoriesAutoConfiguration.class})
 public class AuthServerApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(AuthServerApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(AuthServerApplication.class, args);
+    }
 
 }
