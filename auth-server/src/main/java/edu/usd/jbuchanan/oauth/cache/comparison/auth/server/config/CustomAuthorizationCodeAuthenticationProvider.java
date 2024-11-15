@@ -63,7 +63,7 @@ public class CustomAuthorizationCodeAuthenticationProvider implements Authentica
             if (StringUtils.hasText(scopeParameter)) {
                 scopes = new HashSet<>(Arrays.asList(scopeParameter.split(" ")));
             } else {
-                scopes = new HashSet<>();  // or default scopes if you have any
+                scopes = new HashSet<>();
             }
         }
         // Find the registered client using the client ID

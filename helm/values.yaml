@@ -63,11 +63,11 @@ oauthServer:
 
 
 resourceServer:
-  replicaCount: 2
+  replicaCount: 1
   image:
     repository: jasonbuchanan145/oauth-cache-comparison-resource
     tag: "1.0"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   service:
     type: ClusterIP
     hostPort: 8081

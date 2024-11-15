@@ -25,12 +25,13 @@ public class CustomAuthorizationCodeAuthenticationConverter implements Authentic
      /*   if (!StringUtils.hasText(code)) {
             throwError(OAuth2ErrorCodes.INVALID_REQUEST, OAuth2ParameterNames.CODE);
         }
-*/
+       */
         String redirectUri = Optional.ofNullable(
                 parameters.getFirst(OAuth2ParameterNames.REDIRECT_URI)).orElse("http://127.0.0.1:8080/login/oauth2/code/client");
 
         // Extract additional parameters
         Map<String, Object> additionalParameters = new HashMap<>();
+        additionalParameters.put("cache",request.getHeader("cache-type"));
         parameters.forEach((key, values) -> {
             if (!key.equals(OAuth2ParameterNames.GRANT_TYPE) &&
                     !key.equals(OAuth2ParameterNames.CODE) &&
