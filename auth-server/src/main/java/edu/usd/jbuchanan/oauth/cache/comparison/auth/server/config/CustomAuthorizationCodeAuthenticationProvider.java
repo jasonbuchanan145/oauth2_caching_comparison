@@ -35,13 +35,14 @@ public class CustomAuthorizationCodeAuthenticationProvider implements Authentica
     private final OAuth2TokenGenerator<?> tokenGenerator;
     private final OAuth2AuthorizationService authorizationService;
     private final DynamicCacheResolver cacheManager;
-    private final CachedClientRepository clientRepository;  // Add this
+    private final CachedClientRepository clientRepository;
+
 
     public CustomAuthorizationCodeAuthenticationProvider(
             OAuth2AuthorizationService authorizationService,
             OAuth2TokenGenerator<?> tokenGenerator,
             DynamicCacheResolver cacheManager,
-            CachedClientRepository registeredClientRepository) {  // Add this parameter
+            CachedClientRepository registeredClientRepository) {
         this.authorizationService = authorizationService;
         this.tokenGenerator = tokenGenerator;
         this.cacheManager = cacheManager;
@@ -55,8 +56,7 @@ public class CustomAuthorizationCodeAuthenticationProvider implements Authentica
         Map<String, Object> parameters = authorizationCodeAuthentication.getAdditionalParameters();
         String clientId = ((OAuth2AuthorizationCodeAuthenticationToken) authentication).getCode();
         Set<String> scopes;
-        if(authentication.getPrincipal() instanceof OAuth2ClientAuthenticationToken){
-            OAuth2ClientAuthenticationToken clientAuthentication = (OAuth2ClientAuthenticationToken) authentication.getPrincipal();
+        if(authentication.getPrincipal() instanceof OAuth2ClientAuthenticationToken clientAuthentication){
             scopes= Optional.ofNullable(clientAuthentication.getRegisteredClient()).map(RegisteredClient::getScopes).orElse(new HashSet<>());
         }else {
             String scopeParameter = (String) parameters.get(OAuth2ParameterNames.SCOPE);
@@ -72,7 +72,7 @@ public class CustomAuthorizationCodeAuthenticationProvider implements Authentica
         // Build access token context
         DefaultOAuth2TokenContext.Builder tokenContextBuilder = DefaultOAuth2TokenContext.builder()
                 .registeredClient(registeredClient)
-                .principal((Authentication) authorizationCodeAuthentication.getPrincipal())
+                .principal(authorizationCodeAuthentication)  // Pass the whole authentication token
                 .authorizationServerContext(AuthorizationServerContextHolder.getContext())
                 .authorizedScopes(scopes)
                 .tokenType(OAuth2TokenType.ACCESS_TOKEN)

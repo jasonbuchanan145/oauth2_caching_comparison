@@ -9,3 +9,22 @@ spring:
           jwk-set-uri: http://auth-server/.well-known/jwks.json
           audiences:
             - your-audience-value
+  data:
+    redis:
+      host: oauth-cache-comparison-redis-master.default.svc.cluster.local
+      password: testy
+      username: jason_test
+
+
+logging:
+  level:
+    org.springframework.security: info
+memcached:
+  servers: oauth-cache-comparison-memcached.default.svc.cluster.local:11211
+hazelcast:
+  servers: oauth-cache-comparison-hazelcast:5701
+management:
+  endpoint:
+    health:
+      show-details: always
+
