@@ -59,15 +59,15 @@ oauthServer:
     MEMCACHED_PORT: "11211"
     HAZELCAST_HOST: hazelcast
     HAZELCAST_PORT: "5701"
-    JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5000
+  #  JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5000
 
 
 resourceServer:
-  replicaCount: 2
+  replicaCount: 1
   image:
     repository: jasonbuchanan145/oauth-cache-comparison-resource
     tag: "1.0"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
   service:
     type: ClusterIP
     hostPort: 8081
