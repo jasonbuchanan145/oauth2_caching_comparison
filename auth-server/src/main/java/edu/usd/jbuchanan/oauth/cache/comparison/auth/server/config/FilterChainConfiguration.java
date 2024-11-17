@@ -21,18 +21,20 @@ public class FilterChainConfiguration {
     private final CacheBackedAuthorizationService authorizationService;
     private final Filter cacheTypeFilter;
     private final OAuth2TokenGenerator<?> tokenGenerator;
-
-
+    private final CustomAuthorizationCodeAuthenticationConverter authConverter;
     public FilterChainConfiguration(
             @Autowired CustomAuthorizationCodeAuthenticationProvider customAuthorizationCodeAuthenticationProvider,
             @Autowired CacheBackedAuthorizationService authorizationService,
             @Autowired Filter cacheTypeFilter,
+            @Autowired CustomAuthorizationCodeAuthenticationConverter authConverter,
             @Autowired OAuth2TokenGenerator<?> tokenGenerator) {
         this.authProvider = customAuthorizationCodeAuthenticationProvider;
         this.cacheTypeFilter = cacheTypeFilter;
         this.tokenGenerator = tokenGenerator;
+        this.authConverter = authConverter;
         this.authorizationService = authorizationService;
     }
+
     @Bean
     @Order(1)
     public SecurityFilterChain authorizationServerSecurityFilterChain(HttpSecurity http) throws Exception {
@@ -54,8 +56,7 @@ public class FilterChainConfiguration {
                         .tokenGenerator(tokenGenerator)
                         .authorizationService(authorizationService)
                         .tokenEndpoint(tokenEndpoint -> tokenEndpoint
-                                .accessTokenRequestConverter(
-                                        new CustomAuthorizationCodeAuthenticationConverter())
+                                .accessTokenRequestConverter( authConverter)
                                 .authenticationProvider(authProvider)))
                 .addFilterBefore(cacheTypeFilter, UsernamePasswordAuthenticationFilter.class);
 

@@ -56,7 +56,7 @@ public class CustomTokenValidator implements OAuth2TokenValidator<Jwt> {
         }
 
         //Extract the claim for which cache to check
-        String cache = jwt.getClaimAsString("cache-type");
+        String cache = jwt.getClaimAsString("cache");
         CacheManager manager = switch (cache) {
             case "redis" -> redisCacheManager;
             case "memcached" -> memcachedCacheManager;

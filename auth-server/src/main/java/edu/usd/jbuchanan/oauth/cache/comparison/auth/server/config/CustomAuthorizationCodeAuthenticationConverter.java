@@ -1,20 +1,27 @@
 package edu.usd.jbuchanan.oauth.cache.comparison.auth.server.config;
 
+import edu.usd.jbuchanan.oauth.cache.comparison.cacheconfig.cache.FindMaxVerisionUtility;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.OAuth2ErrorCodes;
 import org.springframework.security.oauth2.core.endpoint.OAuth2ParameterNames;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2AuthorizationCodeAuthenticationToken;
 import org.springframework.security.oauth2.server.authorization.authentication.OAuth2ClientAuthenticationToken;
 import org.springframework.security.web.authentication.AuthenticationConverter;
+import org.springframework.stereotype.Component;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-
+@Component
 public class CustomAuthorizationCodeAuthenticationConverter implements AuthenticationConverter {
+
+   @Autowired
+    FindMaxVerisionUtility findMaxVerisionUtility;
+
 
     @Override
     public Authentication convert(HttpServletRequest request) {
@@ -31,20 +38,9 @@ public class CustomAuthorizationCodeAuthenticationConverter implements Authentic
 
         // Extract additional parameters
         Map<String, Object> additionalParameters = new HashMap<>();
-        additionalParameters.put("cache",request.getHeader("cache-type"));
-        parameters.forEach((key, values) -> {
-            if (!key.equals(OAuth2ParameterNames.GRANT_TYPE) &&
-                    !key.equals(OAuth2ParameterNames.CODE) &&
-                    !key.equals(OAuth2ParameterNames.REDIRECT_URI)) {
-                additionalParameters.put(key, values.get(0));
-            }
-        });
 
-        // Extract version
-        String deviceId = parameters.getFirst("version");
-        if (StringUtils.hasText(deviceId)) {
-            additionalParameters.put("version", deviceId);
-        }
+
+
 
         // Get client authentication
         Authentication clientPrincipal = (Authentication) request.getUserPrincipal();
@@ -52,7 +48,19 @@ public class CustomAuthorizationCodeAuthenticationConverter implements Authentic
         if (!(clientPrincipal instanceof OAuth2ClientAuthenticationToken)) {
             throwError(OAuth2ErrorCodes.INVALID_CLIENT, "No OAuth2ClientAuthenticationToken");
         }
+        String cache = request.getHeader("cache-type");
+        additionalParameters.put("cache",cache);
+        Integer version = findMaxVerisionUtility.incrementVersion(clientPrincipal.getName(),
+                FindMaxVerisionUtility.CacheType.valueOf(cache.toUpperCase()));
+        additionalParameters.put("version",version);
 
+        parameters.forEach((key, values) -> {
+            if (!key.equals(OAuth2ParameterNames.GRANT_TYPE) &&
+                    !key.equals(OAuth2ParameterNames.CODE) &&
+                    !key.equals(OAuth2ParameterNames.REDIRECT_URI)) {
+                additionalParameters.put(key, values.get(0));
+            }
+        });
         return new OAuth2AuthorizationCodeAuthenticationToken(
                 code, clientPrincipal, redirectUri, additionalParameters);
     }

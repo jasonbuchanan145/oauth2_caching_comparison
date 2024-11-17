@@ -29,14 +29,14 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    JwtDecoder jwtDecoder,
-                                                   CustomJwtAuthenticationConverter jwtAuthenticationConverter) throws Exception {
+                                                   CustomTokenValidator customTokenValidator) throws Exception {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(jwt -> jwt
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter)
+
                                 .decoder(jwtDecoder)
                         )
                 )

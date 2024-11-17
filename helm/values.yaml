@@ -59,7 +59,7 @@ oauthServer:
     MEMCACHED_PORT: "11211"
     HAZELCAST_HOST: hazelcast
     HAZELCAST_PORT: "5701"
-    JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5000
+  #  JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5000
 
 
 resourceServer:
