@@ -5,8 +5,8 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://auth-server/issuer
-          jwk-set-uri: http://auth-server/.well-known/jwks.json
+          issuer-uri: http://oauth-server-service:9999/issuer
+          jwk-set-uri: http://oauth-server-service:9999/.well-known/jwks.json
           audiences:
             - your-audience-value
   data:
