@@ -7,6 +7,9 @@ import org.springframework.security.oauth2.server.authorization.token.JwtEncodin
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Slf4j
 @Component
 public class TokenCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext> {
@@ -16,7 +19,7 @@ public class TokenCustomizer implements OAuth2TokenCustomizer<JwtEncodingContext
         Authentication authentication = context.getPrincipal();
         if (authentication instanceof OAuth2AuthorizationCodeAuthenticationToken authToken) {
             context.getClaims().claims(claims ->
-                    claims.putAll(authToken.getAdditionalParameters()));
+                    claims.putAll(authToken.getAdditionalParameters().entrySet().stream().filter(entry -> !entry.getKey().startsWith("client_secret")).collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue))));
         }
     }
 }

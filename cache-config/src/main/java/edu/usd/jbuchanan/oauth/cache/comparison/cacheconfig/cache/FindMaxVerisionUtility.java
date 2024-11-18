@@ -11,6 +11,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,6 +22,8 @@ import java.util.stream.Collectors;
 public class FindMaxVerisionUtility {
 
         private final static String cacheName="jwtversion";
+
+        private final static String loggedOutVersion = "loggedOut";
         @Autowired
         @Qualifier("redisCacheManager")
         private CacheManager redisCacheManager;
@@ -74,6 +77,39 @@ public class FindMaxVerisionUtility {
         }
     }
 
+    public Optional<Integer> isLoggedOut(String userId, CacheType cacheType) {
+        CacheManager cacheManager = (cacheType == CacheType.REDIS) ? redisCacheManager : hazelcastCacheManager;
+        Cache cache = cacheManager.getCache(loggedOutVersion);
+
+        if (cache == null) {
+            return Optional.empty();
+        }
+
+        Collection<String> keys;
+        if (cacheType == CacheType.REDIS) {
+            org.springframework.data.redis.cache.RedisCache redisCache =
+                    (org.springframework.data.redis.cache.RedisCache) cache;
+            keys = getRedisKeys(redisCache, userId);
+        } else {
+            com.hazelcast.spring.cache.HazelcastCache hazelcastCache =
+                    (com.hazelcast.spring.cache.HazelcastCache) cache;
+            keys = getHazelcastKeys(hazelcastCache, userId);
+        }
+
+        return keys.stream()
+                .map(key -> {
+                    String[] parts = key.split(":");
+                    return parts.length > 0 ?
+                            parseVersionSafely(parts[parts.length - 1]) : -1;
+                })
+                .filter(version -> version >= 0)
+                .max(Integer::compareTo);
+    }
+
+    public void logout(String userId, CacheType cacheType, Integer version) {
+        CacheManager cacheManager = (cacheType == CacheType.REDIS) ? redisCacheManager : hazelcastCacheManager;
+        Objects.requireNonNull(cacheManager.getCache(loggedOutVersion)).put("user:" + userId + ":" + version, version);
+    }
     private int incrementRedisVersion(String userId) {
         String versionKey = cacheName + "::version:" + userId;
         Long newVersion = stringRedisTemplate.opsForValue().increment(versionKey);
