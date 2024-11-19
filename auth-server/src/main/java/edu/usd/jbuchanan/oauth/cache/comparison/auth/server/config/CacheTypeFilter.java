@@ -15,7 +15,8 @@ public class CacheTypeFilter implements Filter {
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         try {
-            CacheTypeContext.setCacheType(((HttpServletRequest) request).getHeader("cache-type"));
+            if(!((HttpServletRequest)request).getRequestURI().contains("actuator"))
+                CacheTypeContext.setCacheType(((HttpServletRequest) request).getHeader("cache-type"));
             filterChain.doFilter(request, response);
         } finally {
             CacheTypeContext.clear();

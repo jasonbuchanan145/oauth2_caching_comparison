@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-oauth-client
+  labels:
+    app: oauth-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oauth-client
+  template:
+    metadata:
+      labels:
+        app: oauth-client
+    spec:
+      containers:
+        - name: oauth-client
+          image: "{{ .Values.client.image.repository }}:{{ .Values.client.image.tag }}"
+          imagePullPolicy: {{ .Values.client.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              port: http
+              path: /actuator/health
+          readinessProbe:
+            httpGet:
+              port: http
+              path: /actuator/health
+          env:
+            - name: OAUTH_SERVER_URL
+              value: http://{{ .Release.Name }}-oauth-server-service:9999
+            - name: RESOURCE_SERVER_URL
+              value: http://{{ .Release.Name }}-resource-server-service:8081

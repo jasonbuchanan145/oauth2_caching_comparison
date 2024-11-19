@@ -199,7 +199,6 @@ public class FindMaxVerisionUtility {
     }
 
     private Collection<String> getHazelcastKeys(com.hazelcast.spring.cache.HazelcastCache hazelcastCache, String userId) {
-        @SuppressWarnings("unchecked")
         IMap<Object, Object> map = hazelcastCache.getNativeCache();
 
         return map.keySet()
