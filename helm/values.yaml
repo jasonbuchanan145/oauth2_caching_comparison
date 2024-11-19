@@ -80,9 +80,9 @@ resourceServer:
     HAZELCAST_HOST: hazelcast
     HAZELCAST_PORT: "5701"
 
-clientPod:
+client:
   enabled: true
   image:
     repository: jasonbuchanan145/oauth-cache-comparison-client
     tag: "1.0"
-    pullPolicy: IfNotPresent
+    pullPolicy: Always

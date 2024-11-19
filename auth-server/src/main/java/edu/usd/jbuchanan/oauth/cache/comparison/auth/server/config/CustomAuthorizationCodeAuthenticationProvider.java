@@ -72,7 +72,7 @@ public class CustomAuthorizationCodeAuthenticationProvider implements Authentica
         // Build access token context
         DefaultOAuth2TokenContext.Builder tokenContextBuilder = DefaultOAuth2TokenContext.builder()
                 .registeredClient(registeredClient)
-                .principal(authorizationCodeAuthentication)  // Pass the whole authentication token
+                .principal(authorizationCodeAuthentication)
                 .authorizationServerContext(AuthorizationServerContextHolder.getContext())
                 .authorizedScopes(scopes)
                 .tokenType(OAuth2TokenType.ACCESS_TOKEN)
@@ -87,7 +87,6 @@ public class CustomAuthorizationCodeAuthenticationProvider implements Authentica
                 jwt.getExpiresAt(),
                 new HashSet<>(jwt.getClaim("scope"))
         );
-
         OAuth2RefreshToken refreshToken = null;
        // if (registeredClient.getAuthorizationGrantTypes().contains(AuthorizationGrantType.REFRESH_TOKEN)) {
         OAuth2TokenContext refreshTokenContext = DefaultOAuth2TokenContext.builder()
@@ -114,13 +113,6 @@ public class CustomAuthorizationCodeAuthenticationProvider implements Authentica
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
                 .authorizedScopes(scopes);
 
-        if (accessToken != null) {
-            authorizationBuilder.accessToken(accessToken);
-        }
-
-        if (refreshToken != null) {
-            authorizationBuilder.refreshToken(refreshToken);
-        }
 
         OAuth2Authorization authorization = authorizationBuilder.build();
         authorizationService.save(authorization);

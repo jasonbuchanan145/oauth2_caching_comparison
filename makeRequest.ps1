@@ -8,10 +8,10 @@ function Extract-Token {
 }
 
 # OAuth2 token request parameters
-$tokenEndpoint = "http://127.0.0.1:54353/oauth2/token"
+$tokenEndpoint = "http://oauth-server-service:9999/oauth2/token"
 $clientId = "ThisIsMyClientId"
 $clientSecret = "myClientSecret"
-$resourceEndpoint = "http://127.0.0.1:54356/sample/user-info"
+$resourceEndpoint = "http://resource-server-service:8081/sample/user-info"
 
 # Prepare authentication header (Base64 encoded client_id:client_secret)
 $auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("${clientId}:${clientSecret}"))
