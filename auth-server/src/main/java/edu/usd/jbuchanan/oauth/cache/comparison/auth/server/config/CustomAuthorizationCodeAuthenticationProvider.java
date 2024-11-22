@@ -111,6 +111,8 @@ public class CustomAuthorizationCodeAuthenticationProvider implements Authentica
         OAuth2Authorization.Builder authorizationBuilder = OAuth2Authorization.withRegisteredClient(registeredClient)
                 .principalName(authorizationCodeAuthentication.getPrincipal().toString())
                 .authorizationGrantType(AuthorizationGrantType.AUTHORIZATION_CODE)
+                .accessToken(accessToken)
+                .refreshToken(refresh)
                 .authorizedScopes(scopes);
 
 

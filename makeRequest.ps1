@@ -8,17 +8,18 @@ function Extract-Token {
 }
 
 # OAuth2 token request parameters
-$tokenEndpoint = "http://oauth-server-service:9999/oauth2/token"
+$tokenEndpoint = "http://127.0.0.1:65273/oauth2/token"
+$revokeEndpoint = "http://127.0.0.1:65273/oauth2/revoke"
 $clientId = "ThisIsMyClientId"
 $clientSecret = "myClientSecret"
-$resourceEndpoint = "http://resource-server-service:8081/sample/user-info"
+$resourceEndpoint = "http://127.0.0.1:65276/sample/user-info"
 
 # Prepare authentication header (Base64 encoded client_id:client_secret)
 $auth = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes("${clientId}:${clientSecret}"))
 $headers = @{
     "Authorization" = "Basic $auth"
     "Content-Type" = "application/x-www-form-urlencoded"
-    "cache-type" = "hazelcast"
+    "cache-type" = "redis"
 }
 
 # Prepare request body
@@ -51,6 +52,42 @@ try {
 
     Write-Host "Resource server response:"
     $resourceResponse | ConvertTo-Json -Depth 10
+
+    # Step 3: Revoke the token
+    Write-Host "Revoking access token..."
+    $revokeBody = "token=$accessToken&token_type_hint=access_token"
+    $revokeResponse = Invoke-RestMethod `
+        -Method Post `
+        -Uri $revokeEndpoint `
+        -Headers $headers `
+        -Body $revokeBody `
+        -ErrorAction Stop
+
+    Write-Host "Token successfully revoked"
+
+    Start-Sleep -Seconds 3
+
+    # Step 4: Verify token is revoked by attempting to use it again
+    Write-Host "`nAttempting to use revoked token..."
+    try {
+        $invalidTokenResponse = Invoke-RestMethod `
+            -Method Get `
+            -Uri $resourceEndpoint `
+            -Headers $resourceHeaders `
+            -ErrorAction Stop
+
+        Write-Host "Warning: Token is still valid!"
+    }
+    catch {
+        if ($_.Exception.Response.StatusCode.value__ -eq 401) {
+            Write-Host "Success: Token properly revoked - received 401 Unauthorized"
+            Write-Host "Error details: $($_.Exception.Message)"
+        }
+        else {
+            Write-Host "Unexpected error status: $($_.Exception.Response.StatusCode.value__)"
+            Write-Host "Error details: $($_.Exception.Message)"
+        }
+    }
 
 } catch {
     Write-Host "Error occurred: $($_.Exception.Message)"

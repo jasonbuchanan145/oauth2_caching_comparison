@@ -82,18 +82,21 @@ public class FindMaxVerisionUtility {
         Cache cache = cacheManager.getCache(loggedOutVersion);
 
         if (cache == null) {
+            log.warn("Logout cache not found: {}", loggedOutVersion);
             return Optional.empty();
         }
 
         Collection<String> keys;
         if (cacheType == CacheType.REDIS) {
-            org.springframework.data.redis.cache.RedisCache redisCache =
-                    (org.springframework.data.redis.cache.RedisCache) cache;
-            keys = getRedisKeys(redisCache, userId);
+            // Use consistent key pattern
+            String keyPattern = loggedOutVersion + "::" + userId + ":*";
+            keys = stringRedisTemplate.keys(keyPattern);
+            log.debug("Found {} Redis logout keys for pattern: {}", keys.size(), keyPattern);
         } else {
             com.hazelcast.spring.cache.HazelcastCache hazelcastCache =
                     (com.hazelcast.spring.cache.HazelcastCache) cache;
-            keys = getHazelcastKeys(hazelcastCache, userId);
+            keys = getHazelcastLogoutKeys(hazelcastCache, userId);
+            log.debug("Found {} Hazelcast logout keys for user: {}", keys.size(), userId);
         }
 
         return keys.stream()
@@ -105,10 +108,69 @@ public class FindMaxVerisionUtility {
                 .filter(version -> version >= 0)
                 .max(Integer::compareTo);
     }
+    private Collection<String> getHazelcastLogoutKeys(
+            com.hazelcast.spring.cache.HazelcastCache hazelcastCache,
+            String userId) {
+            IMap<Object, Object> map = hazelcastCache.getNativeCache();
+            String prefix = loggedOutVersion + "::" + userId + ":";
 
+            return map.keySet()
+                    .stream()
+                    .map(Object::toString)
+                    .filter(key -> key.startsWith(prefix))
+                    .collect(Collectors.toSet());
+        }
+
+    public void clearLogoutEntries(String userId, CacheType cacheType) {
+        CacheManager cacheManager = (cacheType == CacheType.REDIS) ? redisCacheManager : hazelcastCacheManager;
+        Cache cache = cacheManager.getCache(loggedOutVersion);
+
+        if (cache == null) {
+            return;
+        }
+
+        if (cacheType == CacheType.REDIS) {
+            String keyPattern = loggedOutVersion + "::" + userId + ":*";
+            Set<String> keys = stringRedisTemplate.keys(keyPattern);
+            if (keys != null && !keys.isEmpty()) {
+                stringRedisTemplate.delete(keys);
+                log.info("Cleared {} logout entries for user {}", keys.size(), userId);
+            }
+        } else {
+            com.hazelcast.spring.cache.HazelcastCache hazelcastCache =
+                    (com.hazelcast.spring.cache.HazelcastCache) cache;
+            IMap<Object, Object> map = hazelcastCache.getNativeCache();
+            String prefix = loggedOutVersion + "::" + userId + ":";
+
+            AtomicInteger count = new AtomicInteger();
+            map.keySet().stream()
+                    .map(Object::toString)
+                    .filter(key -> key.startsWith(prefix))
+                    .forEach(key -> {
+                        map.remove(key);
+                        count.incrementAndGet();
+                    });
+            log.info("Cleared {} logout entries for user {}", count.get(), userId);
+        }
+    }
     public void logout(String userId, CacheType cacheType, Integer version) {
         CacheManager cacheManager = (cacheType == CacheType.REDIS) ? redisCacheManager : hazelcastCacheManager;
-        Objects.requireNonNull(cacheManager.getCache(loggedOutVersion)).put("user:" + userId + ":" + version, version);
+        Cache cache = cacheManager.getCache(loggedOutVersion);
+        if (cache == null) {
+            throw new IllegalStateException("Logout cache not found: " + loggedOutVersion);
+        }
+
+        String logoutKey;
+        if (cacheType == CacheType.REDIS) {
+            // For Redis, the cache name is automatically prefixed
+            logoutKey = String.format("%s:%d", userId, version);
+        } else {
+            // For Hazelcast, manually include the cache name
+            logoutKey = String.format("%s::%s:%d", loggedOutVersion, userId, version);
+        }
+
+        cache.put(logoutKey, version);
+        log.info("Stored logout version {} for user {} with key {}", version, userId, logoutKey);
     }
     private int incrementRedisVersion(String userId) {
         String versionKey = cacheName + "::version:" + userId;

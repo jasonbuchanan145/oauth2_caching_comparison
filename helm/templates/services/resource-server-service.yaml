@@ -14,5 +14,9 @@ spec:
       port: {{ .Values.resourceServer.service.hostPort }}
       targetPort: {{ .Values.resourceServer.service.containerPort }}
       protocol: TCP
+    - port: 5000
+      targetPort: 5000
+      protocol: TCP
+      name: debug
   selector:
     app: resource-server

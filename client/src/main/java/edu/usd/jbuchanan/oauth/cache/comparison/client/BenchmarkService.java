@@ -114,7 +114,7 @@ class BenchmarkService {
                 .flatMap(i ->
                                 getOAuthToken(i, cacheType)
                                         .flatMap(this::callResourceServer)
-                        , 50) // Concurrency limit
+                        , 20) // Concurrency limit
                 .collectList()
                 .map(results -> {
                     // Sort the results by requestNumber

@@ -1,0 +1,36 @@
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.benchmark-card { border: 1px solid #ddd; padding: 20px; margin: 20px 0; border-radius: 8px; }
+.form-group { margin-bottom: 15px; }
+.metrics { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+.metric-card { background: #f5f5f5; padding: 15px; border-radius: 4px; }
+button { padding: 8px 16px; margin: 5px; cursor: pointer; }
+.chart-container { margin-top: 20px; height: 300px; }
+
+/* Spinner styles */
+.spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #3498db;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-container {
+    display: none;
+    margin-left: 10px;
+    vertical-align: middle;
+}
+
+button:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
