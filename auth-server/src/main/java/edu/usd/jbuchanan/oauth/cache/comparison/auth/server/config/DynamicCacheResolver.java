@@ -45,6 +45,15 @@ public class DynamicCacheResolver implements CacheResolver {
     List<CacheManager> getAll(){
         return List.of(redisCacheManager,memcachedCacheManager,hazelcastCacheManager);
     }
+
+    public CacheManager getCacheManager(String cache){
+        return switch (cache) {
+            case "redis" -> redisCacheManager;
+            case "memcached" -> memcachedCacheManager;
+            case "hazelcast" -> hazelcastCacheManager;
+            default -> throw new IllegalArgumentException("Unknown cache type: " + cache);
+        };
+    }
     public CacheManager getCacheManager() {
         String cacheType = CacheTypeContext.getCacheType();
         if(cacheType==null){
@@ -59,11 +68,6 @@ public class DynamicCacheResolver implements CacheResolver {
                 cacheType = type;
             }
         }
-        return switch (cacheType) {
-            case "redis" -> redisCacheManager;
-            case "memcached" -> memcachedCacheManager;
-            case "hazelcast" -> hazelcastCacheManager;
-            default -> throw new IllegalArgumentException("Unknown cache type: " + cacheType);
-        };
+        return getCacheManager(cacheType);
     }
 }

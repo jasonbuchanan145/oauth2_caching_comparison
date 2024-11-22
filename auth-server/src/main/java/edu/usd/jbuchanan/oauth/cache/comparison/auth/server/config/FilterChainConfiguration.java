@@ -28,6 +28,7 @@ public class FilterChainConfiguration {
     private final OAuth2TokenGenerator<?> tokenGenerator;
     private final CustomAuthorizationCodeAuthenticationConverter authConverter;
     private final JWKSource<SecurityContext> jwkSource;
+    private final BlacklistHandler blacklistHandler;
 
     public FilterChainConfiguration(
             @Autowired CustomAuthorizationCodeAuthenticationProvider customAuthorizationCodeAuthenticationProvider,
@@ -35,13 +36,15 @@ public class FilterChainConfiguration {
             @Autowired Filter cacheTypeFilter,
             @Autowired CustomAuthorizationCodeAuthenticationConverter authConverter,
             @Autowired OAuth2TokenGenerator<?> tokenGenerator,
-            @Autowired JWKSource<SecurityContext> jwkSource) {
+            @Autowired JWKSource<SecurityContext> jwkSource,
+                @Autowired BlacklistHandler blacklistHandler) {
         this.authProvider = customAuthorizationCodeAuthenticationProvider;
         this.cacheTypeFilter = cacheTypeFilter;
         this.tokenGenerator = tokenGenerator;
         this.authConverter = authConverter;
         this.authorizationService = authorizationService;
         this.jwkSource = jwkSource;  // Add this
+        this.blacklistHandler = blacklistHandler;
     }
 
     @Bean
@@ -54,7 +57,9 @@ public class FilterChainConfiguration {
         // Configure OIDC
         authorizationServerConfigurer
                 .oidc(Customizer.withDefaults());
-
+        authorizationServerConfigurer
+                .tokenRevocationEndpoint(revocation -> revocation
+                        .authenticationProvider(blacklistHandler));
 
         RequestMatcher endpointsMatcher = new OrRequestMatcher(
                 authorizationServerConfigurer.getEndpointsMatcher(),

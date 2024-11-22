@@ -1,10 +1,25 @@
 redis:
   enabled: true
-  architecture: standalone
+  architecture: replication
   auth:
     enabled: true
     password: default_password
   master:
+    configuration: |
+      aclfile /opt/bitnami/redis/conf/acl.conf
+    persistence:
+      enabled: false
+    extraVolumes:
+      - name: redis-acl
+        secret:
+          secretName: redis-acl
+    extraVolumeMounts:
+      - name: redis-acl
+        mountPath: /opt/bitnami/redis/conf/acl.conf
+        subPath: acl.conf
+        readOnly: true
+  replica:
+    replicaCount: 2
     configuration: |
       aclfile /opt/bitnami/redis/conf/acl.conf
     persistence:
@@ -39,7 +54,7 @@ memcached:
   enabled: true
 
 oauthServer:
-  replicaCount: 2
+  replicaCount: 1
   image:
     repository: jasonbuchanan145/oauth-cache-comparison-server
     tag: "1.0"
@@ -59,7 +74,7 @@ oauthServer:
     MEMCACHED_PORT: "11211"
     HAZELCAST_HOST: hazelcast
     HAZELCAST_PORT: "5701"
-  #  JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5000
+    JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5000
 
 
 resourceServer:
@@ -79,6 +94,7 @@ resourceServer:
     MEMCACHED_PORT: "11211"
     HAZELCAST_HOST: hazelcast
     HAZELCAST_PORT: "5701"
+    JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5000
 
 client:
   enabled: true

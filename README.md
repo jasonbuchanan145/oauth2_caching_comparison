@@ -123,11 +123,4 @@ TODO:
 TODO: 
 
 ### Future work
-There's so much work to do on this project so here's a priority list
-### Top priority
-- Finish the resource server
-- work on the client
-
-### Medium priority 
-- Finish readme including architecture diagrams
-- Code cleanup
+ - Improve user management 
