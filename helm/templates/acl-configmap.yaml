@@ -1,0 +1,13 @@
+# templates/acl-configmap.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: redis-acl
+  labels:
+    app.kubernetes.io/name: {{ include "oauth-cache-comparison.name" . }}
+    helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version }}
+data:
+  users.acl: |
+    user default on #{{ index .Values "redis-cluster" "auth" "password" }} allcommands allkeys
+    user app on #password ~* &* +@all
+    user jason_test on >testy ~* &* +@all

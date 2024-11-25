@@ -65,7 +65,7 @@ try {
 
     Write-Host "Token successfully revoked"
 
-    Start-Sleep -Seconds 3
+    Start-Sleep -Seconds 1
 
     # Step 4: Verify token is revoked by attempting to use it again
     Write-Host "`nAttempting to use revoked token..."
@@ -80,7 +80,7 @@ try {
     }
     catch {
         if ($_.Exception.Response.StatusCode.value__ -eq 401) {
-            Write-Host "Success: Token properly revoked - received 401 Unauthorized"
+            Write-Host "Success: Token revoked - received 401 Unauthorized"
             Write-Host "Error details: $($_.Exception.Message)"
         }
         else {

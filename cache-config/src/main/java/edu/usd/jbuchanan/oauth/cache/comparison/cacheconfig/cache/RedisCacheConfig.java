@@ -7,8 +7,9 @@ import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.cache.RedisCacheManager;
+import org.springframework.data.redis.connection.RedisClusterConfiguration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
+import org.springframework.data.redis.connection.RedisNode;
 import org.springframework.data.redis.connection.lettuce.LettuceClientConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
@@ -25,12 +26,12 @@ public class RedisCacheConfig {
         return new StringRedisTemplate(connectionFactory);
     }
     @Bean
-    public RedisStandaloneConfiguration redisStandaloneConfiguration() {
-        RedisStandaloneConfiguration config = new RedisStandaloneConfiguration();
-        config.setHostName(redisHost);
-        config.setPort(redisPort);
-        config.setPassword("testy");
-        config.setUsername("jason_test");
+    public RedisClusterConfiguration redisClusterConfiguration() {
+        RedisClusterConfiguration config = new RedisClusterConfiguration();
+        config.setUsername("default");
+        config.setPassword("redis-password");
+        config.addClusterNode(new RedisNode(
+                "oauth-cache-comparison-redis-cluster-headless", 6379));
         return config;
     }
 
@@ -47,7 +48,7 @@ public class RedisCacheConfig {
 
     @Bean
     public LettuceConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(redisStandaloneConfiguration(), lettuceClientConfiguration());
+        return new LettuceConnectionFactory(redisClusterConfiguration(), lettuceClientConfiguration());
     }
 
     @Bean(name = "redisCacheManager")

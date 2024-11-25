@@ -11,9 +11,9 @@ spring:
             - your-audience-value
   data:
     redis:
-      host: oauth-cache-comparison-redis-master.default.svc.cluster.local
-      password: testy
-      username: jason_test
+      host: oauth-cache-comparison-redis-cluster.default.svc.cluster.local
+      password: redis-password
+      username: default
 
 
 logging:

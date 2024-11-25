@@ -1,42 +1,24 @@
-redis:
+redisAclSecretName: redis-acl
+redis-cluster:
   enabled: true
-  architecture: replication
+  usePassword: true
+  password: "redis-password"  # Root password
   auth:
     enabled: true
-    password: default_password
-  master:
-    configuration: |
-      aclfile /opt/bitnami/redis/conf/acl.conf
-    persistence:
-      enabled: false
-    extraVolumes:
-      - name: redis-acl
-        secret:
-          secretName: redis-acl
-    extraVolumeMounts:
-      - name: redis-acl
-        mountPath: /opt/bitnami/redis/conf/acl.conf
-        subPath: acl.conf
-        readOnly: true
-  replica:
-    replicaCount: 2
-    configuration: |
-      aclfile /opt/bitnami/redis/conf/acl.conf
-    persistence:
-      enabled: false
-    extraVolumes:
-      - name: redis-acl
-        secret:
-          secretName: redis-acl
-    extraVolumeMounts:
-      - name: redis-acl
-        mountPath: /opt/bitnami/redis/conf/acl.conf
-        subPath: acl.conf
-        readOnly: true
-aclConfig: |
-  user default on >default_password ~* &* +@all
-  user jason_test on >testy ~* &* +@all
-
+    password: "redis-password"  # Same password in auth section
+  cluster:
+    nodes: 3
+    replicas: 0
+  configuration: |
+    cluster-require-full-coverage no
+    user jason_test on >testy ~* &* +@all
+  persistence:
+    enabled: false
+  commonEnvironmentCfg:
+    - name: REDIS_PASSWORD
+      value: "redis-password"
+    - name: REDIS_MASTER_PASSWORD
+      value: "redis-password"
 hazelcast:
   enabled: true
   mancenter:
