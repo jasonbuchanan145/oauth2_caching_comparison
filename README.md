@@ -134,4 +134,6 @@ navigating the the client service/Benchmark.html
 
 
 ### Future work
- - Improve user management 
+ - Improve user management
+ - Include memory profiles
+ - Test in a true cluster
